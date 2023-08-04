@@ -32,9 +32,8 @@ function displayLoop() {
 ])
   .then((answers) => {
     var choice = answers.homescreen;
-    console.log("This is my user choice " + choice);
     if (choice == "View All Employees") {
-      console.log("Please see employee information.");
+      console.log("VIEW ALL EMPLOYEES");
         // query.sql join statement
         const viewAllEmployees =
         `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, department.department_name AS department, roles.salary AS salary, CONCAT(managers.first_name, " ", managers.last_name) AS manager 
@@ -51,7 +50,7 @@ function displayLoop() {
         displayLoop();
         })
     } else if(choice == "Add Employee") {
-        console.log("Please add an employee!");
+        console.log("ADD EMPLOYEE");
         inquirer.prompt([
           {
               type: "input",
@@ -106,16 +105,56 @@ function displayLoop() {
               function (err, insertResult)
               {
                 if (err) throw err;
-                console.log("New employee added successfully!");
+                console.log("SUCCESS, NEW EMPLOYEE ADDED!");
                 displayLoop();
               }
           )
         })
-    } else if(choice == "Update Employee Role") {
-      console.log("Please update the employee role.");
-      displayLoop();
+    } else if (choice == "Update Employee Role") {
+        console.log("UPDATE EMPLOYEE ROLE");
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "employee",
+                message: "Please select an employee.",
+                choices: ["Rachel Green", "Joey Tribbiani", "May Pham", "Chandler Bing", "Monica Geller"]
+            },
+            {
+                type: "list",
+                name: "role",
+                message: "Please select a role",
+                choices: ["Sales Lead", "Lead Engineer", "Software Engineer", "Lawyer", "Accountant"]
+            }
+        ])
+        .then((updateAnswer) => {
+            const updateEmployee = updateAnswer.employee;
+            const selectedRole = updateAnswer.role;
+
+            if (selectedRole == "Sales Lead") {
+                idRoles = 1;
+            } else if (selectedRole == "Lead Engineer") {
+                idRoles = 2;
+            } else if (selectedRole == "Software Engineer") {
+                idRoles = 3;
+            } else if (selectedRole == "Accountant") {
+                idRoles = 4;
+            } else if (selectedRole == "Lawyer") {
+                idRoles = 5;
+            }
+            const updateEmployeeInformation =
+              `UPDATE employees
+              SET role_id = ?
+              WHERE CONCAT(first_name, ' ', last_name) = ?;`;
+
+            query.query(updateEmployeeInformation, [idRoles, updateEmployee], function (err, updateResult) {
+                if (err) throw err;
+                console.log("SUCCESS, EMPLOYEE ROLE UPDATED!");
+                displayLoop();
+            });
+        });
+    
     } else if(choice == "View all Roles") {
-        console.log("Please see all the roles information.");
+        console.log("VIEW ALL ROLES");
         // query.sql join statement
         const viewAllRoles =
           `SELECT roles.id AS id, roles.title AS title,department.department_name AS department, roles.salary AS salary
@@ -129,7 +168,7 @@ function displayLoop() {
             }
           )
     } else if(choice == "Add Role") {
-      console.log("Please add a role.");
+      console.log("ADD ROLE");
       inquirer.prompt([
           {
               type: "input",
@@ -168,13 +207,13 @@ function displayLoop() {
               function (err, insertResult)
               {
                 if (err) throw err;
-                console.log(" New role added successfully!");
+                console.log("SUCCESS, NEW ROLE ADDED!");
                 displayLoop();
               }
           )
         })
     } else if(choice == "View All Departments") {
-      console.log("Please see the department information.");
+      console.log("VIEW ALL DEPARTMENTS");
         // query.sql join statement
 
         const viewDepartment =
@@ -187,9 +226,8 @@ function displayLoop() {
         console.table(results);
         displayLoop();
         })
-      displayLoop();
     } else if(choice == "Add Department") {
-      console.log("Please add a department.");
+      console.log("ADD DEPARTMENT");
 
       inquirer.prompt([
           {
@@ -207,13 +245,13 @@ function displayLoop() {
               function (err, insertResult)
               {
                 if (err) throw err;
-                console.log("New department added successfully!");
+                console.log("SUCCESS, NEW DEPARTMENT ADDED!");
                 displayLoop();
               }
           )
         })
     } else if(choice == "Quit") {
-      console.log("Goodbye!");
+      console.log("GOODBYE FRIEND!");
       return;
     }
   })

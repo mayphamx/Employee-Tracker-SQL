@@ -1,3 +1,11 @@
+-- delete added employees from testing
+-- DELETE FROM employees WHERE id = 6;
+-- DELETE FROM employees WHERE id = 7;
+-- DELETE FROM roles WHERE id = 6;
+-- DELETE FROM roles WHERE id = 7;
+-- DELETE FROM department WHERE id = 5;
+-- DELETE FROM department WHERE id = 6;
+
 INSERT INTO department (department_name)
 VALUES
   ("Sales"),
