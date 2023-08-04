@@ -26,8 +26,7 @@ function displayLoop() {
       'Add Role', 
       'View All Departments', 
       'Add Department', 
-      'Quit'], 
-    pageSize: 8,
+      'Quit'],
   },
 ])
   .then((answers) => {
@@ -35,7 +34,21 @@ function displayLoop() {
     console.log("This is my user choice " + choice);
     if (choice == "View All Employees") {
       console.log("Please see employee information.");
-      displayLoop();
+        // query.sql join statement
+        const viewAllEmployees =
+        `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, department.department_name AS department, roles.salary AS salary, CONCAT(managers.first_name, " ", managers.last_name) AS manager 
+        FROM employees 
+        JOIN roles ON employees.role_id = roles.id 
+        JOIN department ON roles.department_id = department.id 
+        LEFT JOIN employees AS managers ON employees.manager_id = managers.id;`;
+
+        query.query(viewAllEmployees, function (err, results) {
+          if (err) throw err;
+
+        // prints table
+        console.table(results);
+        displayLoop();
+        })
     } else if(choice == "Add Employee") {
         console.log("Please add an employee!");
         inquirer.prompt([
@@ -49,38 +62,66 @@ function displayLoop() {
               name: "lastName",
               message: "Please enter employee last name!"
           },
+          {
+              type: "list",
+              name: "roleID",
+              message: "Please select an employee role.",
+              choices: ["Sales Lead", "Lead Engineer", "Software Engineer", "Accountant", "Lawyer"]
+          },
         ])
         .then((employeeAnswer) =>{
           const firstName = employeeAnswer.firstName;
           const lastName = employeeAnswer.lastName;
-          console.log("Employee First Name: " + firstName);
-          console.log("Employee Last Name: " + lastName);
+          const userRoleChoice = employeeAnswer.roleID;
+
+          if (userRoleChoice === "Sales Lead") {
+            idNumber = 1;
+          } else if (userRoleChoice === "Lead Engineer") {
+            idNumber = 2;
+          } else if (userRoleChoice === "Software Engineer") {
+            idNumber = 3;
+          } else if (userRoleChoice === "Accountant") {
+            idNumber = 4;
+          } else if (userRoleChoice === "Lawyer") {
+            idNumber = 5;
+          }
           displayLoop();
         })
     } else if(choice == "Update Employee Role") {
       console.log("Please update the employee role.");
       displayLoop();
     } else if(choice == "View all Roles") {
-      console.log("Please see all the roles information.");
+        console.log("Please see all the roles information.");
         // query.sql join statement
-        const viewAllEmployeesQuery = `
-            SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, department.department_name AS department, roles.salary AS salary
-            FROM employees
-            JOIN roles ON employees.role_id = roles.id
-            JOIN department ON roles.department_id = department.id;
-          `;
-          query.query(viewAllEmployeesQuery, function (err, results) {
-           if (err) throw err;
+        const viewAllRoles =
+          `SELECT roles.id AS id, roles.title AS title,department.department_name AS department, roles.salary AS salary
+          FROM roles
+          JOIN department ON department.id = roles.department_id;`;
+
+          query.query(viewAllRoles, function (err, results) {
+            if (err) throw err;
 
           // prints table
           console.table(results);
+          displayLoop();
           })
-      displayLoop();
     } else if(choice == "Add Role") {
       console.log("Please add a role.");
       displayLoop();
     } else if(choice == "View All Departments") {
       console.log("Please see the department information.");
+        // query.sql join statement
+
+        const viewDepartment =
+        `SELECT * FROM department`;
+
+        query.query(viewDepartment, function (err, results) {
+          if (err) throw err;
+
+        // prints table
+        console.table(results);
+        displayLoop();
+        })
       displayLoop();
     } else if(choice == "Add Department") {
       console.log("Please add a department.");
