@@ -4,6 +4,7 @@ const { connect } = require('http2');
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 
+// mysql connection
 const query = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -15,7 +16,7 @@ const query = mysql.createConnection({
 function displayLoop() {
   inquirer.prompt([
     {
-      // TODO: WHEN I start the application THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
+      // user is presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
     name: 'homescreen',
     type: 'list',
     message: 'What would you like to do?',
@@ -34,14 +35,14 @@ function displayLoop() {
     var choice = answers.homescreen;
     if (choice == "View All Employees") {
       console.log("VIEW ALL EMPLOYEES");
-        // query.sql join statement
+        // query.sql left join statement to join tables based on ids and place null values
         const viewAllEmployees =
         `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, department.department_name AS department, roles.salary AS salary, CONCAT(managers.first_name, " ", managers.last_name) AS manager 
         FROM employees 
         JOIN roles ON employees.role_id = roles.id 
         JOIN department ON roles.department_id = department.id 
         LEFT JOIN employees AS managers ON employees.manager_id = managers.id;`;
-
+        // throws error or runs list
         query.query(viewAllEmployees, function (err, results) {
           if (err) throw err;
 
@@ -55,12 +56,12 @@ function displayLoop() {
           {
               type: "input",
               name: "firstName",
-              message: "Please enter employee first name!"
+              message: "Please enter employee first name"
           },
           {
               type: "input",
               name: "lastName",
-              message: "Please enter employee last name!"
+              message: "Please enter employee last name"
           },
           {
               type: "list",
@@ -76,11 +77,13 @@ function displayLoop() {
           },
         ])
         .then((employeeAnswer) => {
+          // variables to set input name/user answer
           const firstName = employeeAnswer.firstName;
           const lastName = employeeAnswer.lastName;
           const userRoleChoice = employeeAnswer.roleID;
           const userManagerChoice = employeeAnswer.manager;
-
+          
+          // match user answer to id to display manager name on table
           if (userRoleChoice === "Sales Lead") {
             idNumber = 1;
           } else if (userRoleChoice === "Lead Engineer") {
@@ -98,7 +101,8 @@ function displayLoop() {
           } else if (userManagerChoice === "Joey Tribbiani") {
             idManager = 2;
           }
-
+          
+          // mysql command to insert data into database
           const addEmployeeInformation = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
           query.query(
               addEmployeeInformation,[firstName, lastName, idNumber, idManager],
@@ -141,6 +145,8 @@ function displayLoop() {
             } else if (selectedRole == "Lawyer") {
                 idRoles = 5;
             }
+
+            // mysql command to update data in database
             const updateEmployeeInformation =
               `UPDATE employees
               SET role_id = ?
@@ -155,8 +161,8 @@ function displayLoop() {
     
     } else if(choice == "View all Roles") {
         console.log("VIEW ALL ROLES");
-        // query.sql join statement
         const viewAllRoles =
+          // query.sql join statement to join tables based on ids
           `SELECT roles.id AS id, roles.title AS title,department.department_name AS department, roles.salary AS salary
           FROM roles
           JOIN department ON department.id = roles.department_id;`;
@@ -191,6 +197,7 @@ function displayLoop() {
           const salary = employeeAnswer.salary;
           const department = employeeAnswer.department;
           
+          // match user answer to id to display data in table
           if (department === "Sales") {
             idDepartment = 1;
           } else if (department === "Engineering") {
